@@ -40,6 +40,7 @@
 
 class getraw : public edm::one::EDAnalyzer<>  {
    public:
+      using TRawDataCollection = std::vector<std::vector<unsigned char>>;
       explicit getraw(const edm::ParameterSet&);
       ~getraw();
 
@@ -52,6 +53,11 @@ class getraw : public edm::one::EDAnalyzer<>  {
       virtual void endJob() override;
 
       // ----------member data ---------------------------
+      edm::EDGetTokenT<FEDRawDataCollection> m_tRawCollection;
+      std::vector<int> m_hcalfeds, m_ecalfeds;
+
+      TTree                                     *m_tree;
+      TRawDataCollection                        m_raw;
 };
 
 //
@@ -66,8 +72,18 @@ class getraw : public edm::one::EDAnalyzer<>  {
 // constructors and destructor
 //
 getraw::getraw(const edm::ParameterSet& iConfig)
-
 {
+    // token for the raw collection
+    m_tRawCollection = consumes<FEDRawDataCollection>(
+        iConfig.getParameter<edm::InputTag>("InputLabel"));
+
+    // retrieve the list of feds to unpack for hcal
+    for (int i=FEDNumbering::MINHCALuTCAFEDID; i<=FEDNumbering::MAXHCALuTCAFEDID; i++)
+        m_hcalfeds.push_back(i);
+
+    edm::Service<TFileService> fs;
+    m_tree =fs->make<TTree>("Events", "Events");
+    m_tree->Branch("RawData", (TRawDataCollection*)&m_raw);
 }
 
 
@@ -88,6 +104,21 @@ getraw::~getraw()
 void
 getraw::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+    // extract the raw collection
+    edm::Handle<FEDRawDataCollection> hRaw;
+    iEvent.getByToken(m_tRawCollection, hRawCollection);
+
+    for (auto i=0; i<hRawCollection->size(); i++) {
+        // 
+        // retrieve the fed raw buffer
+        //
+        const FEDRawData& fdata = hRawCollection->FEDData(i);
+        unsigned char *data = fdata.data();
+        m_raw.emplace_back(data, data + fdata.size());
+    }
+
+    m_tree->Fill();
+    m_raw.clear();
 }
 
 

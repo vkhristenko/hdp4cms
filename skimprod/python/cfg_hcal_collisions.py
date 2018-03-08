@@ -163,8 +163,21 @@ process.recoPath = cms.Path(
     *process.hbheprereco
 )
 
+process.TFileService = cms.Service(
+    "TFileService",
+    fileName=cms.string("rawdata.root")
+)
+process.getraw = cms.EDAnalyzer(
+    "getraw",
+    InputLabel = rawTag
+)
+process.skimprodPath = cms.Path(
+    process.getraw
+)
+
 process.schedule = cms.Schedule(
-    process.digiPath,
+    process.skimprodPath
+#    process.digiPath
 #    process.recoPath,
-    process.finalize
+#    process.finalize
     )
