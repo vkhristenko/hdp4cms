@@ -20,6 +20,9 @@
 // system include files
 #include <memory>
 
+// ROOT includes
+#include "TTree.h"
+
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
@@ -28,6 +31,13 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
 //
 // class declaration
 //
@@ -54,10 +64,10 @@ class getraw : public edm::one::EDAnalyzer<>  {
 
       // ----------member data ---------------------------
       edm::EDGetTokenT<FEDRawDataCollection> m_tRawCollection;
-      std::vector<int> m_hcalfeds, m_ecalfeds;
 
       TTree                                     *m_tree;
       TRawDataCollection                        m_raw;
+      std::vector<int>                          m_feds;
 };
 
 //
@@ -79,7 +89,7 @@ getraw::getraw(const edm::ParameterSet& iConfig)
 
     // retrieve the list of feds to unpack for hcal
     for (int i=FEDNumbering::MINHCALuTCAFEDID; i<=FEDNumbering::MAXHCALuTCAFEDID; i++)
-        m_hcalfeds.push_back(i);
+        m_feds.push_back(i);
 
     edm::Service<TFileService> fs;
     m_tree =fs->make<TTree>("Events", "Events");
@@ -105,15 +115,16 @@ void
 getraw::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
     // extract the raw collection
-    edm::Handle<FEDRawDataCollection> hRaw;
+    edm::Handle<FEDRawDataCollection> hRawCollection;
     iEvent.getByToken(m_tRawCollection, hRawCollection);
 
-    for (auto i=0; i<hRawCollection->size(); i++) {
+    for (std::vector<int>::const_iterator it=m_feds.begin(); 
+        it < m_feds.end(); ++it) {
         // 
         // retrieve the fed raw buffer
         //
-        const FEDRawData& fdata = hRawCollection->FEDData(i);
-        unsigned char *data = fdata.data();
+        const FEDRawData& fdata = hRawCollection->FEDData(*it);
+        unsigned char *data = (unsigned char*) fdata.data();
         m_raw.emplace_back(data, data + fdata.size());
     }
 
