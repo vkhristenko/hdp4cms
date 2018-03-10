@@ -37,6 +37,17 @@ void dump_raw(TRawBuffer const& buffer) {
 
 namespace hcal {
 
+class uhtr_data {
+public:
+
+private:
+    int formatversion;
+    int rawlength64;
+    uint64_t const* raw64;
+    uint16_t const* raw16;
+    uint64_t* data;
+};
+
 class module_header {
 public:
     inline uint16_t amcid() const { return uint16_t(header & 0xFFFF); }
