@@ -66,6 +66,12 @@ public:
     inline unsigned int orbitnumber() const { return (unsigned int)((amc13_header >> 4) & 0xFFFFFFFFu); }
 
     inline module_header const& getm(int i) const { return modules_headers[i]; }
+    uint64_t const* payload(int imod) const { 
+        uint64_t const *ptr = (&cdf_header) + 2 + namc();
+        for (auto i=0; i<imod; i++) 
+            ptr += modules_headers[i].amcsize();
+        return ptr;
+    }
 
 private:
     uint64_t cdf_header;
@@ -89,7 +95,13 @@ void unpack_utca(TRawBuffer const& buffer) {
     PRINT(header->orbitnumber());
 
     for (auto iamc=0; iamc<header->namc(); iamc++) {
+        // some additional defs
+        int crate = header->getm(iamc).amcid() & 0xFF;
+        int nps = (header->getm(iamc).amcid() >> 12) & 0xF;
+
         PRINT(iamc);
+        PRINT(crate);
+        PRINT(nps);
         PRINT(header->getm(iamc).amcid());
         PRINT(header->getm(iamc).amcslot());
         PRINT(header->getm(iamc).amcblocknumber());
@@ -100,6 +112,21 @@ void unpack_utca(TRawBuffer const& buffer) {
         PRINT(header->getm(iamc).amccrok());
         PRINT(header->getm(iamc).amcdatapresent());
         PRINT(header->getm(iamc).amcenabled());
+
+        // get the payload and size
+        uint64_t const *payload = header->payload(iamc);
+        auto size = header->getm(iamc).amcsize();
+        
+        // cast the payload to unsigned char *
+        unsigned char const * payload_tmp = reinterpret_cast<unsigned char const*>(payload);
+        TRawBuffer buffer_tmp(payload_tmp, payload_tmp + size*8);
+
+        // dump the paylaad
+        printf("\n\n***********************************\n");
+        printf("    Dumping RAW Payload __only__ Buffer    size = %d\n", 
+               size * 8);
+        printf("***********************************\n\n");
+        common::dump_raw(buffer_tmp);
     }
 
     // num of uhtrs in this FED
@@ -129,6 +156,9 @@ void unpack(TRawBuffer const& buffer) {
     unpack_utca(buffer);
 
     // dump the whole buffer
+    printf("\n\n***********************************\n");
+    printf("    Dumping the whole RAW Buffer    size = %lu\n", buffer.size());
+    printf("***********************************\n\n");
     common::dump_raw(buffer);
 }
 
