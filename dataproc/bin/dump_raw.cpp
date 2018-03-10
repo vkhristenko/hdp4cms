@@ -23,10 +23,10 @@ using TRawDataCollection = std::vector<TRawBuffer>;
 
 namespace common {
 
-void dump_raw(TRawBuffer const& buffer) {
+void dump_raw(TRawBuffer const& buffer, int countermax = 25) {
     auto counter = 0;
     for (auto it = buffer.begin(); it!=buffer.end(); counter++, ++it) {
-        if (counter % 25 == 0) 
+        if (counter % countermax == 0) 
             printf("\n");
         printf("%02x ", *it);
     }
@@ -134,10 +134,13 @@ void unpack_utca(TRawBuffer const& buffer) {
 
         // dump the paylaad
         printf("\n\n***********************************\n");
-        printf("    Dumping RAW Payload __only__ Buffer    size = %d\n", 
+        printf("    Dumping RAW Payload __only__ Buffer    size = %dB\n", 
                size * 8);
         printf("***********************************\n\n");
-        common::dump_raw(buffer_tmp);
+
+        // dump 16 bit words per line
+        // as in hcal specification!
+        common::dump_raw(buffer_tmp, 2);
     }
 
     // num of uhtrs in this FED
