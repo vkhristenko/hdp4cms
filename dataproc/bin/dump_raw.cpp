@@ -39,13 +39,33 @@ namespace hcal {
 
 class uhtr_data {
 public:
+    uhtr_data(uint64_t const* p64, int n):
+        payload64(p64), payload16((uint16_t const*)p64), size64(n)
+    {}
+
+    ~uhtr_data() 
+    {}
+
+    // class headerv1
+    class headerv1 {
+    public:
+        inline int bcn() const { return int((words[1] >> 4) & 0xFFF); }
+        inline int evn() const { return int(((uint32_t const*)(words))[1] & 0xFFFFFF); }
+        inline int presamples() const { return int((words[4] >> 12) &0xF); }
+        inline int slotid() const { return int((words[4] >> 8) & 0xF); }
+        inline int crateid() const { return int((words[4] & 0xFF)); }
+        inline int orb() const { return int(words[5]); }
+
+    private:
+        uint16_t words[8];
+    };
+
+    headerv1 const* get_headerv1() const { return (headerv1 const*)(payload16); }
 
 private:
-    int formatversion;
-    int rawlength64;
-    uint64_t const* raw64;
-    uint16_t const* raw16;
-    uint64_t* data;
+    uint64_t const *payload64;
+    uint16_t const *payload16;
+    int size64;
 };
 
 class module_header {
@@ -127,17 +147,22 @@ void unpack_utca(TRawBuffer const& buffer) {
         // get the payload and size
         uint64_t const *payload = header->payload(iamc);
         auto size = header->getm(iamc).amcsize();
+        uhtr_data uhtr(payload, size);
+        PRINT(uhtr.get_headerv1()->bcn());
+        PRINT(uhtr.get_headerv1()->evn());
+        PRINT(uhtr.get_headerv1()->presamples());
+        PRINT(uhtr.get_headerv1()->slotid());
+        PRINT(uhtr.get_headerv1()->crateid());
+        PRINT(uhtr.get_headerv1()->orb());
         
         // cast the payload to unsigned char *
         unsigned char const * payload_tmp = reinterpret_cast<unsigned char const*>(payload);
         TRawBuffer buffer_tmp(payload_tmp, payload_tmp + size*8);
-
         // dump the paylaad
         printf("\n\n***********************************\n");
         printf("    Dumping RAW Payload __only__ Buffer    size = %dB\n", 
                size * 8);
         printf("***********************************\n\n");
-
         // dump 16 bit words per line
         // as in hcal specification!
         common::dump_raw(buffer_tmp, 2);
