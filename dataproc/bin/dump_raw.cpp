@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <stdexcept>
 
 #define USEROOT
 #define THRESHOLD 10
@@ -37,6 +38,94 @@ void dump_raw(TRawBuffer const& buffer, int countermax = 25) {
 
 namespace hcal {
 
+
+// data for flavors 0 or 1
+// class is located outside of the uhtr_data as the same payload (byte layout)
+// might sit in the VME payload - TO BE SEEN...
+class data_f01 {
+public:
+    // decls, defs
+    static int constexpr WORDS_PER_SAMPLE = 1;
+    static int constexpr HEADER_WORDS = 1;
+    // TODO: what is this guy?
+    static int constexpr FLAG_WORDS = 1;
+
+    // constructor
+    data_f01(uint16_t const* start, uint16_t const* end) :
+        data(start), samples(int((end - start - HEADER_WORDS)/WORDS_PER_SAMPLE))
+    {}
+    ~data_f01() 
+    {}
+
+    class sample {
+    public: 
+        sample(uint16_t data) :
+            m_data(data)
+        {}
+
+        inline bool soi() const { return ((m_data >> 14) & 0x1); }
+        inline int tdc() const { return ((m_data >> 8) & 0x3F); }
+        inline int adc() const { return (m_data & 0x00FF); }
+
+    private:
+        uint16_t m_data;
+    };
+
+    inline int nsamples() const { return samples; }
+    inline int channelid() const { return ((*data) & 0xFF); }
+    inline int capid() const { return (((*data) >> 8) & 0x3); }
+    inline sample get_sample(int i) const { 
+        return sample(*(data + HEADER_WORDS + i*WORDS_PER_SAMPLE)); 
+    }
+
+private:
+    uint16_t const *data;
+    int samples;
+};
+
+class data_f2 {
+public:
+    // decls, defs
+    static int constexpr WORDS_PER_SAMPLE = 2;
+    static int constexpr HEADER_WORDS = 1;
+    // TODO: what is this guy?
+    static int constexpr FLAG_WORDS = 1;
+
+    data_f2(uint16_t const* start, uint16_t const *end) :
+        data(start), samples(int((end - start - HEADER_WORDS)/WORDS_PER_SAMPLE))
+    {}
+    ~data_f2()
+    {}
+
+    class sample {
+    public:
+        sample(uint16_t word1, uint16_t word2) :
+            m_word1(word1), m_word2(word2)
+        {}
+
+        inline bool soi() const { return ((m_word1 >> 13) & 0x1); }
+        inline bool ok() const { return ((m_word1 >> 12) & 0x1); }
+        inline int adc() const { return (m_word1 & 0xFF); }
+        inline int capid() const { return ((m_word2 >> 12) & 0x3); }
+        inline int tdc_te() const { return ((m_word2 >> 6) & 0x1F); }
+        inline int tdc_le() const { return (m_word2 & 0x3F); }
+
+    private:
+        uint16_t m_word1, m_word2;
+    };
+
+    inline int nsamples() const { return samples; }
+    inline int channelid() const { return ((*data) & 0xFF); }
+    inline sample get_sample(int i) {
+        uint16_t const *ptr = data + HEADER_WORDS + i*WORDS_PER_SAMPLE;
+        return sample(*ptr, *(ptr+1));
+    }
+    
+private:
+    uint16_t const *data;
+    int samples;
+};
+
 class uhtr_data {
 public:
     uhtr_data(uint64_t const* p64, int n):
@@ -60,7 +149,64 @@ public:
         uint16_t words[8];
     };
 
+    class const_iterator {
+    public:
+        const_iterator(uint16_t const* ptr, uint16_t const* p_end) :
+            word(ptr), end(p_end)
+        {}
+        ~const_iterator()
+        {}
+
+        inline bool is_header() const { return ((*word) & 0x8000)!=0; }
+        inline bool is_end() const { return word == end; }
+        inline int flavor() const { return (((*word) >> 12) & 0x7); }
+
+        inline uint16_t const* operator()() const { return word; }
+        inline bool operator==(const_iterator const& rhs) const { return word == rhs.word; }
+        inline bool operator!=(const_iterator const& rhs) const { return word != rhs.word; }
+        inline const_iterator operator+(int i) {
+            auto it = const_iterator(word, end);
+            for (auto ii=0; ii<i; ii++)
+                it.operator++();
+            return it;
+        }
+        const_iterator& operator++() { 
+            // the must
+            if (!is_header()) {
+                printf("word address = %p\n", word);
+                printf("end address = %p\n", end);
+                printf("word = %x\n", *word);
+                throw std::runtime_error("const_iterator points to a non-header word");
+            }
+            if (word == end)
+                return *this;
+
+            // skip until the next header or until the end of the per channel data 
+            word++;
+            while(!is_header() && !is_end())
+                word++;
+
+            return *this;
+        }
+
+    private:
+        // must always point to the header of the flavored data
+        uint16_t const *word;
+        // if word == end, done
+        uint16_t const *end;
+    };
+
     headerv1 const* get_headerv1() const { return (headerv1 const*)(payload16); }
+    const_iterator begin() const { 
+        return const_iterator(payload16+8, 
+                              payload16 + (size64-1)*sizeof(uint64_t)/sizeof(int16_t));
+    }
+    const_iterator end() const { 
+        return const_iterator(payload16 + (size64-1)*sizeof(uint64_t)/sizeof(int16_t),
+                              payload16 + (size64-1)*sizeof(uint64_t)/sizeof(int16_t)); 
+    }
+
+    inline int get_format_version() const { return ((payload16[6] >> 12) & 0xF); }
 
 private:
     uint64_t const *payload64;
@@ -154,6 +300,47 @@ void unpack_utca(TRawBuffer const& buffer) {
         PRINT(uhtr.get_headerv1()->slotid());
         PRINT(uhtr.get_headerv1()->crateid());
         PRINT(uhtr.get_headerv1()->orb());
+        PRINT(uhtr.get_format_version());
+
+        // TODO: eliminate this issue with uMNio 
+        if (uhtr.get_format_version() != 1)
+            continue;
+
+        for (auto it=uhtr.begin(); it!=uhtr.end(); ++it) {
+            PRINT(it.flavor());
+            if (it.flavor() == 0 || it.flavor() == 1) {
+                // flavor 0 or 1
+                data_f01 ch_data(it(), (it+1)());
+
+                // debug
+                PRINT(ch_data.channelid());
+                PRINT(ch_data.capid());
+                PRINT(ch_data.nsamples());
+                printf("Sample: \n");
+                for (auto is=0; is<ch_data.nsamples(); is++) {
+                    PRINT(ch_data.get_sample(is).soi());
+                    PRINT(ch_data.get_sample(is).adc());
+                    PRINT(ch_data.get_sample(is).tdc());
+                }
+            } 
+            else if (it.flavor() == 2) {
+                data_f2 ch_data(it(), (it+1)());
+
+                PRINT(ch_data.channelid());
+                PRINT(ch_data.nsamples());
+
+                printf("Sample: \n");
+                for (auto is=0; is<ch_data.nsamples(); is++) {
+                    PRINT(ch_data.get_sample(is).soi());
+                    PRINT(ch_data.get_sample(is).ok());
+                    PRINT(ch_data.get_sample(is).adc());
+                    PRINT(ch_data.get_sample(is).tdc_te());
+                    PRINT(ch_data.get_sample(is).tdc_le());
+                }
+            }
+            else 
+                continue;
+        }
         
         // cast the payload to unsigned char *
         unsigned char const * payload_tmp = reinterpret_cast<unsigned char const*>(payload);
@@ -224,6 +411,10 @@ int main(int argc, char ** argv) {
 
     int nevents = tree->GetEntries();
     for (auto i=0; i<nevents && i<THRESHOLD; i++) {
+        printf("\n\n********************************\n");
+        printf("   New Event   \n");
+        printf("********************************\n\n");
+
         tree->GetEntry(i);
         PRINT(raw->size());
 
@@ -234,6 +425,10 @@ int main(int argc, char ** argv) {
             }
             hcal::unpack(*it);
         }
+        
+        printf("\n\n********************************\n");
+        printf("   End of Event   \n");
+        printf("********************************\n\n");
     }
 
     f->Close();
