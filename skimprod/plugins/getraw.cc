@@ -91,7 +91,7 @@ getraw::getraw(const edm::ParameterSet& iConfig)
     // retrieve the list of feds to unpack for hcal
     for (int i=FEDNumbering::MINHCALuTCAFEDID; i<=FEDNumbering::MAXHCALuTCAFEDID; i++)
         m_feds.push_back(i);
-    for (int i=FEDNumbering::MINECALFEDID; i <= MINCASTORFEDID; i++)
+    for (int i=FEDNumbering::MINECALFEDID; i <= FEDNumbering::MINCASTORFEDID; i++)
         m_feds.push_back(i);
 
     edm::Service<TFileService> fs;
