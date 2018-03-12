@@ -18,11 +18,24 @@
 #define PRINTRAW(x) \
     printf(#x " = %02x\n", x);
 
+#define MINECALFEDID 600
+#define MAXECALFEDID 670
+#define MINHCALuTCAFEDID 1100
+#define MAXHCALuTCAFEDID 1199
+
 // type decls
 using TRawBuffer = std::vector<unsigned char>;
 using TRawDataCollection = std::vector<TRawBuffer>;
 
 namespace common {
+
+bool is_hcal_fed(int fed) {
+    return fed>=MINHCALuTCAFEDID && fed<=MAXHCALuTCAFEDID;
+}
+
+bool is_ecal_fed(int fed) {
+    return fed>=MINECALFEDID && fed<=MAXECALFEDID;
+}
 
 void dump_raw(TRawBuffer const& buffer, int countermax = 25) {
     auto counter = 0;
@@ -363,7 +376,7 @@ void unpack_utca(TRawBuffer const& buffer) {
     }*/
 }
 
-void unpack(TRawBuffer const& buffer) {
+void unpack(TRawBuffer const& buffer, int fed) {
     PRINT(buffer.size());
 
     // pointer to the first byte of the buffer
@@ -383,12 +396,25 @@ void unpack(TRawBuffer const& buffer) {
 
     // dump the whole buffer
     printf("\n\n***********************************\n");
-    printf("    Dumping the whole RAW Buffer    size = %lu\n", buffer.size());
+    printf("    FED=%d Dumping the whole RAW Buffer size = %lu Bytes\n", fed, buffer.size());
     printf("***********************************\n\n");
-    common::dump_raw(buffer);
+    common::dump_raw(buffer, 8);
 }
 
 }// end namespace hcal
+
+namespace ecal {
+
+void unpack(TRawBuffer const& buffer, int fed) {
+    // dump the whole buffer
+    printf("\n\n***********************************\n");
+    printf("    FED=%d Dumping the whole RAW Buffer size = %lu Bytes\n", fed, buffer.size());
+    printf("***********************************\n\n");
+    common::dump_raw(buffer, 8);
+
+}
+
+} // end of namepsace ecal
 
 int main(int argc, char ** argv) {
     std::cout << "hello world" << std::endl;
@@ -401,13 +427,17 @@ int main(int argc, char ** argv) {
 
     TFile *f = new TFile(pathToFile.c_str());
     TTree *tree = (TTree*)f->Get("getraw/Events");
+    TTree *tree_aux = (TTree*)f->Get("getraw/Aux");
 
     // for debug
     PRINT(tree->GetEntries());
 
     TRawDataCollection *raw = nullptr;
+    std::vector<int> *feds = nullptr;
 
     tree->SetBranchAddress("RawData", &raw);
+    tree_aux->SetBranchAddress("FEDs", &feds);
+    tree_aux->GetEntry(0);
 
     int nevents = tree->GetEntries();
     for (auto i=0; i<nevents && i<THRESHOLD; i++) {
@@ -418,12 +448,19 @@ int main(int argc, char ** argv) {
         tree->GetEntry(i);
         PRINT(raw->size());
 
-        for (auto it=raw->begin(); it!=raw->end(); ++it) {
-            if (it->size() == 0) {
-                printf("skipping fed\n");
+        for (auto ifed=0; ifed < feds->size(); ifed++) {
+            auto fed = feds->at(ifed);
+            TRawBuffer const& buffer = raw->at(ifed);
+            if (buffer.size() == 0) {
+                printf("skipping fed = %d fed %d\n", ifed, fed);
                 continue;
             }
-            hcal::unpack(*it);
+            if (common::is_hcal_fed(fed))
+                hcal::unpack(buffer, fed);
+            else if (common::is_ecal_fed(fed))
+                ecal::unpack(buffer, fed);
+            else
+                printf("UNKNOWN FED fed=%d", fed);
         }
         
         printf("\n\n********************************\n");
