@@ -66,6 +66,7 @@ class getraw : public edm::one::EDAnalyzer<>  {
       edm::EDGetTokenT<FEDRawDataCollection> m_tRawCollection;
 
       TTree                                     *m_tree;
+      TTree                                     *m_treeAux;
       TRawDataCollection                        m_raw;
       std::vector<int>                          m_feds;
 };
@@ -90,10 +91,17 @@ getraw::getraw(const edm::ParameterSet& iConfig)
     // retrieve the list of feds to unpack for hcal
     for (int i=FEDNumbering::MINHCALuTCAFEDID; i<=FEDNumbering::MAXHCALuTCAFEDID; i++)
         m_feds.push_back(i);
+    for (int i=FEDNumbering::MINECALFEDID; i <= MINCASTORFEDID; i++)
+        m_feds.push_back(i);
 
     edm::Service<TFileService> fs;
     m_tree =fs->make<TTree>("Events", "Events");
     m_tree->Branch("RawData", (TRawDataCollection*)&m_raw);
+
+    // ot be filled just once
+    m_treeAux = fs->make<TTree>("Aux", "Aux");
+    m_treeAux->Branch("FEDs", (std::vector<int>*)&m_feds);
+    m_treeAux->Fill();
 }
 
 
