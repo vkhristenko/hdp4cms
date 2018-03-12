@@ -367,13 +367,6 @@ void unpack_utca(TRawBuffer const& buffer) {
         // as in hcal specification!
         common::dump_raw(buffer_tmp, 2);
     }
-
-    // num of uhtrs in this FED
-    /*
-    auto nuhtrs = header->namc();
-    for (auto iuhtr=0; i<nuhtrs; i++) {
-
-    }*/
 }
 
 void unpack(TRawBuffer const& buffer, int fed) {
