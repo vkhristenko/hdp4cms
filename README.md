@@ -7,6 +7,6 @@ Heterogeneous Data Processing for the CMS Experiment
 
 ## Installation
 - `git clone https://github.com/vkhristenko/hdp4cms`
-- `cd analytics4cmssw; mkdir bin`
+- `cd hdp4cms; mkdir bin`
 - `cmake ../`
 - `make`
