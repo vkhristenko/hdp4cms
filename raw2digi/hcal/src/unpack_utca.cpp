@@ -94,6 +94,45 @@ void unpack_utca(dataformats::raw_fed::raw_buffer const& buffer) {
                     PRINT(ch_data.get_sample(is).tdc_le());
                 }
             }
+            else if (it.flavor() == 3) {
+                data_f3 ch_data(it(), (it+1)());
+
+                PRINT(ch_data.channelid());
+                PRINT(ch_data.nsamples());
+
+                printf("Sample: \n");
+                for (auto is=0; is<ch_data.nsamples(); is++) {
+                    PRINT(ch_data.get_sample(is).soi());
+                    PRINT(ch_data.get_sample(is).le());
+                    PRINT(ch_data.get_sample(is).capid());
+                    PRINT(ch_data.get_sample(is).adc());
+                    PRINT(ch_data.get_sample(is).tdc());
+                }
+            }
+            else if (it.flavor() == 4) {
+                data_f4 ch_data(it(), (it+1)());
+
+                PRINT(ch_data.channelid());
+                PRINT(ch_data.nsamples());
+
+                printf("Sample: \n");
+                for (auto is=0; is<ch_data.nsamples(); is++) {
+                    PRINT(ch_data.get_sample(is).soi());
+                    PRINT(ch_data.get_sample(is).ok());
+                    PRINT(ch_data.get_sample(is).tpg());
+                }
+            }
+            else if (it.flavor() == 5) {
+                data_f5 ch_data(it(), (it+1)());
+
+                PRINT(ch_data.channelid());
+                PRINT(ch_data.nsamples());
+
+                printf("Sample: \n");
+                for (auto is=0; is<ch_data.nsamples(); is++) {
+                    PRINT(ch_data.get_sample(is).adc());
+                }
+            }
             else
                 continue;
         }
