@@ -16,15 +16,9 @@ include_directories("${ROOT_INCLUDE_DIRS}")
 # generate dictionaries
 include(${ROOT_USE_FILE})
 ROOT_GENERATE_DICTIONARY(
-    G__DICT__TEST interface/FEDRawData.h interface/FEDRawDataCollection.h
+    G__DICT__DATAFORMATS__FED_RAW interface/FEDRawData.h interface/FEDRawDataCollection.h
     interface/edm__ViewTypeChecker.h interface/edm__WrapperBase.h interface/edm__Wrapper_FEDRawDataCollection_.h
     LINKDEF conf/LinkDef.h
 )
-add_library(DICTTEST SHARED G__DICT__TEST.cxx)
-target_link_libraries(DICTTEST ${ROOT_LIBRARIES})
-
-# add executables
-add_executable(dump_raw bin/dump_raw.cpp)
-add_executable(dump_cmsraw bin/dump_cmsraw.cpp)
-target_link_libraries(dump_raw ${ROOT_LIBRARIES} DICTTEST dataformats__fed_raw)
-target_link_libraries(dump_cmsraw ${ROOT_LIBRARIES} DICTTEST dataformats__fed_raw)
+add_library(dataformats__fed_raw SHARED G__DICT__DATAFORMATS__FED_RAW.cxx)
+target_link_libraries(dataformats__fed_raw ${ROOT_LIBRARIES})
