@@ -17,5 +17,5 @@ include_directories("${ROOT_INCLUDE_DIRS}")
 file(GLOB SOURCES src/*.cpp)
 
 # generate shared libs
-add_library(dataformats__fed_hcal SHARED ${SOURCES})
-target_link_libraries(dataformats__fed_hcal ${ROOT_LIBRARIES})
+add_library(dataformats__raw_hcal SHARED ${SOURCES})
+target_link_libraries(dataformats__raw_hcal ${ROOT_LIBRARIES})

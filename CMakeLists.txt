@@ -17,6 +17,8 @@ set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1z -Wno-c++1z-extensions")
 include_directories(${PROJECT_SOURCE_DIR})
 
 # each subdir knows what to build
-add_subdirectory(dataproc)
 add_subdirectory(dataformats)
 add_subdirectory(raw2digi)
+
+# executables for various purposes
+add_subdirectory(execs)
