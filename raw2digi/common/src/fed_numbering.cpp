@@ -10,4 +10,9 @@ bool is_ecal_fed(int fed) {
     return fed>=MINECALFEDID && fed<=MAXECALFEDID;
 }
 
+bool is_pixel_fed(int fed) {
+    return (fed>=MINSiPixelFEDID && MAXSiPixelFEDID) || (fed>=MINSiPixeluTCAFEDID && fed<=MAXSiPixeluTCAFEDID) ||
+           (fed>=MINSiPixel2nduTCAFEDID && fed<=MAXSiPixel2nduTCAFEDID);
+}
+
 }

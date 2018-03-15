@@ -4,7 +4,7 @@
 #include <stdexcept>
 
 #define USEROOT
-#define THRESHOLD 10
+#define THRESHOLD 2
 //##undef USEROOT
 
 #ifdef USEROOT
@@ -14,6 +14,8 @@
 
 #include "dataformats/raw_fed/interface/edm__Wrapper_FEDRawDataCollection_.h"
 #include "raw2digi/hcal/interface/unpack.hpp"
+#include "raw2digi/ecal/interface/unpack.hpp"
+#include "raw2digi/pixel/interface/unpack.hpp"
 #include "raw2digi/common/interface/fed_numbering.hpp"
 #include "raw2digi/common/interface/dump_raw.hpp"
 
@@ -38,7 +40,7 @@ int main(int argc, char ** argv) {
     tree->SetBranchAddress("FEDRawDataCollection_rawDataCollector__LHC.", &raw);
 
     auto nevents = tree->GetEntries();
-    for (auto i=0; i<nevents; i++) {
+    for (auto i=0; i<nevents && i<THRESHOLD; i++) {
         printf("\n\n********************************\n");
         printf("   New Event   \n");
         printf("********************************\n\n");
@@ -61,8 +63,10 @@ int main(int argc, char ** argv) {
             }
             if (raw2digi::common::is_hcal_fed(fed))
                 raw2digi::hcal::unpack(buffer.data_, fed);
-//            else if (common::is_ecal_fed(fed))
-//                raw2digi::ecal::unpack(buffer.data_, fed);
+            else if (raw2digi::common::is_ecal_fed(fed))
+                raw2digi::ecal::unpack(buffer.data_, fed);
+            else if (raw2digi::common::is_pixel_fed(fed))
+                raw2digi::pixel::unpack(buffer.data_, fed);
             else
                 printf("UNKNOWN FED fed=%d", fed);
         }

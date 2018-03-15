@@ -21,10 +21,11 @@ void unpack_utca(dataformats::raw_fed::raw_buffer const& buffer) {
 
     PRINT(header->namc());
     PRINT(header->amc13formatversion());
-    PRINT(header->sourceid());
-    PRINT(header->bunchid());
-    PRINT(header->l1anumber());
-    PRINT(header->cdfeventtype());
+    PRINT(header->get_fed_header().fedid());
+    PRINT(header->get_fed_header().bx());
+    PRINT(header->get_fed_header().l1a());
+    PRINT(header->get_fed_header().triggertype());
+    PRINT(header->get_fed_header().boe());
     PRINT(header->orbitnumber());
 
     for (auto iamc=0; iamc<header->namc(); iamc++) {
