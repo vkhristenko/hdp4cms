@@ -7,3 +7,4 @@ message(PROJECT_SOURCE_DIR = ${PROJECT_SOURCE_DIR})
 message(PROJECT_BINARY_DIR = ${PROJECT_BINARY_DIR})
 
 add_subdirectory(raw2digi)
+add_subdirectory(test_opencl)
