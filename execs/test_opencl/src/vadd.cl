@@ -1,3 +1,5 @@
+#include "/Users/vk/software/heter4cms/hdp4cms/execs/test_opencl/src/def.h"
+
 struct some_data_t {
     float d;
 };
