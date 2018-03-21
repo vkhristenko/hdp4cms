@@ -69,7 +69,15 @@ int main(int argc, char** argv) {
     }
 
     // load kernel and create a prgoram object for the cxt provided
-    cl::Program program(ctx, loadProgram(progName), true);
+    int error = 0;
+    cl::Program program(ctx, loadProgram(progName), true, &error);
+
+#if 0
+    if (error == CL_BUILD_PROGRAM_FAILURE) {
+        size_t log_size;
+        auto info = program.getBuildInfo(&error);
+    }
+#endif
 
     // get a queue
     cl::CommandQueue queue((ctx));
