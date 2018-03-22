@@ -36,6 +36,16 @@ public:
         return *this;
     }
 
+    // get the number of digis in a collection
+    inline int size() const { 
+        return m_data.size()==0 ? 0 : 
+            m_data.size() / (T::HEADER_WORDS + m_nsamples*T::WORDS_PER_SAMPLE);
+    }
+
+    // get the raw data
+    uint16_t const* data() const { return m_data.data(); }
+
+    // push an element
     void push_back(T const& digi) {
         uint16_t const* data = digi.get_data();
 
@@ -53,8 +63,13 @@ public:
                 m_data.push_back(*data);
 
     }
-    //T at(int i) = operator[](i);
-    //T operator[](int i);
+
+    T at(int i) { return operator[](i); } 
+    T operator[](int i) {
+        int ipos = i*(T::HEADER_WORDS + m_nsamples*T::WORDS_PER_SAMPLE);
+        uint16_t const* data_start = m_data.data() + ipos;
+        return T(data_start, m_nsamples);
+    }
 
     // set the nsamples
     void set_nsamples(int nsamples) { m_nsamples = nsamples; }
@@ -69,6 +84,11 @@ using digi_collection_f2 = digi_collection<data_f2>;
 using digi_collection_f3 = digi_collection<data_f3>;
 using digi_collection_f4 = digi_collection<data_f4>;
 using digi_collection_f5 = digi_collection<data_f5>;
+using collections = std::tuple<digi_collection_f01, 
+                               digi_collection_f2,
+                               digi_collection_f3, 
+                               digi_collection_f4,
+                               digi_collection_f5>;
 
 }
 

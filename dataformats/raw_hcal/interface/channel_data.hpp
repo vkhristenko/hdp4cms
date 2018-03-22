@@ -17,6 +17,9 @@ public:
     data_f01(uint16_t const* start, uint16_t const* end) :
         data(start), samples(int((end - start - HEADER_WORDS)/WORDS_PER_SAMPLE))
     {}
+    data_f01(uint16_t const* start, int s) :
+        data(start), samples(s)
+    {}
     ~data_f01()
     {}
 
@@ -57,6 +60,9 @@ public:
 
     data_f2(uint16_t const* start, uint16_t const *end) :
         data(start), samples(int((end - start - HEADER_WORDS)/WORDS_PER_SAMPLE))
+    {}
+    data_f2(uint16_t const* start, int s) :
+        data(start), samples(s)
     {}
     ~data_f2()
     {}
@@ -100,6 +106,9 @@ public:
     data_f3(uint16_t const *start, uint16_t const* end) :
         data(start), samples(int((end - start - HEADER_WORDS) / WORDS_PER_SAMPLE))
     {}
+    data_f3(uint16_t const* start, int s) :
+        data(start), samples(s)
+    {}
     ~data_f3()
     {}
 
@@ -142,6 +151,9 @@ public:
     data_f4(uint16_t const *start, uint16_t const* end) :
         data(start), samples(int((end - start - HEADER_WORDS) / WORDS_PER_SAMPLE))
     {}
+    data_f4(uint16_t const* start, int s) :
+        data(start), samples(s)
+    {}
     ~data_f4()
     {}
 
@@ -181,6 +193,9 @@ public:
 
     data_f5(uint16_t const *start, uint16_t const* end) :
         data(start), samples(int((end - start - HEADER_WORDS) / WORDS_PER_SAMPLE))
+    {}
+    data_f5(uint16_t const* start, int s) :
+        data(start), samples(s)
     {}
     ~data_f5()
     {}
