@@ -5,16 +5,27 @@
 #include "dataformats/raw_hcal/interface/amc13header.hpp"
 #include "dataformats/raw_hcal/interface/uhtr_data.hpp"
 #include "dataformats/raw_hcal/interface/channel_data.hpp"
+#include "dataformats/raw_hcal/interface/digi_collection.hpp"
 
 namespace raw2digi::hcal {
 
 using namespace dataformats::raw_hcal;
 using namespace dataformats::raw_fed;
 using namespace raw2digi::common;
-
-void unpack_utca(dataformats::raw_fed::raw_buffer const& buffer) {
+std::tuple<digi_collection_f01,
+           digi_collection_f2,
+           digi_collection_f3,
+           digi_collection_f4,
+           digi_collection_f5>
+unpack_utca(dataformats::raw_fed::raw_buffer const& buffer) {
     // raw buffer
     unsigned char const *data = &buffer[0];
+
+    digi_collection<data_f01> digis_f01;
+    digi_collection<data_f2> digis_f2;
+    digi_collection<data_f3> digis_f3;
+    digi_collection<data_f4> digis_f4;
+    digi_collection<data_f5> digis_f5;
 
     // emulate the cmssw process
     amc13header const *header = (amc13header const*)data;
@@ -79,6 +90,9 @@ void unpack_utca(dataformats::raw_fed::raw_buffer const& buffer) {
                     PRINT(ch_data.get_sample(is).adc());
                     PRINT(ch_data.get_sample(is).tdc());
                 }
+
+                // push a digi
+                digis_f01.push_back(ch_data);
             }
             else if (it.flavor() == 2) {
                 data_f2 ch_data(it(), (it+1)());
@@ -94,6 +108,9 @@ void unpack_utca(dataformats::raw_fed::raw_buffer const& buffer) {
                     PRINT(ch_data.get_sample(is).tdc_te());
                     PRINT(ch_data.get_sample(is).tdc_le());
                 }
+
+                // push digi
+                digis_f2.push_back(ch_data);
             }
             else if (it.flavor() == 3) {
                 data_f3 ch_data(it(), (it+1)());
@@ -109,6 +126,9 @@ void unpack_utca(dataformats::raw_fed::raw_buffer const& buffer) {
                     PRINT(ch_data.get_sample(is).adc());
                     PRINT(ch_data.get_sample(is).tdc());
                 }
+
+                // push a digi
+                digis_f3.push_back(ch_data);
             }
             else if (it.flavor() == 4) {
                 data_f4 ch_data(it(), (it+1)());
@@ -122,6 +142,9 @@ void unpack_utca(dataformats::raw_fed::raw_buffer const& buffer) {
                     PRINT(ch_data.get_sample(is).ok());
                     PRINT(ch_data.get_sample(is).tpg());
                 }
+
+                // push a digi
+                digis_f4.push_back(ch_data);
             }
             else if (it.flavor() == 5) {
                 data_f5 ch_data(it(), (it+1)());
@@ -133,6 +156,9 @@ void unpack_utca(dataformats::raw_fed::raw_buffer const& buffer) {
                 for (auto is=0; is<ch_data.nsamples(); is++) {
                     PRINT(ch_data.get_sample(is).adc());
                 }
+
+                // push a digi
+                digis_f5.push_back(ch_data);
             }
             else
                 continue;
@@ -150,6 +176,12 @@ void unpack_utca(dataformats::raw_fed::raw_buffer const& buffer) {
         // as in hcal specification!
         common::dump_raw(buffer_tmp, 2);
     }
+
+    return std::move(std::make_tuple(std::move(digis_f01), 
+                                     std::move(digis_f2), 
+                                     std::move(digis_f3), 
+                                     std::move(digis_f4), 
+                                     std::move(digis_f5)));
 }
 
 }

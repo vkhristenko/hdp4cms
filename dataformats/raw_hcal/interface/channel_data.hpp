@@ -33,7 +33,8 @@ public:
     private:
         uint16_t m_data;
     };
-
+    
+    inline uint16_t const* get_data() const { return data; }
     inline int nsamples() const { return samples; }
     inline int channelid() const { return ((*data) & 0xFF); }
     inline int capid() const { return (((*data) >> 8) & 0x3); }
@@ -77,6 +78,7 @@ public:
         uint16_t m_word1, m_word2;
     };
 
+    inline uint16_t const* get_data() const { return data; }
     inline int nsamples() const { return samples; }
     inline int channelid() const { return ((*data) & 0xFF); }
     inline sample get_sample(int i) {
@@ -117,6 +119,7 @@ public:
         uint16_t m_data;
     };
 
+    inline uint16_t const* get_data() const { return data; }
     inline int nsamples() const { return samples; }
     inline int channelid() const { return ((*data) & 0xFF); }
     inline sample get_sample(int i) {
@@ -156,6 +159,7 @@ public:
         uint16_t m_data;
     };
 
+    inline uint16_t const* get_data() const { return data; }
     inline int nsamples() const { return samples; }
     inline int channelid() const { return ((*data) & 0xFF); }
     inline sample get_sample(int i) {
@@ -193,6 +197,7 @@ public:
         uint8_t m_data;
     };
 
+    inline uint16_t const* get_data() const { return data; }
     inline int nsamples() const { return samples; }
     inline int channelid() const { return ((*data) & 0xFF); }
     inline sample get_sample(int i) {
