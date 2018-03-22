@@ -73,6 +73,8 @@ public:
 
     // set the nsamples
     void set_nsamples(int nsamples) { m_nsamples = nsamples; }
+    // get the nsamples
+    int get_nsamples() const { return m_nsamples; }
 
 private:
     int                                     m_nsamples;        
