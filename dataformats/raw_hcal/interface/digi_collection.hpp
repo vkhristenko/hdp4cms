@@ -44,6 +44,7 @@ public:
 
     // get the raw data
     std::vector<uint16_t>& data() { return m_data; }
+    std::vector<uint16_t> const& data() const { return m_data; }
 
     // push an element
     void push_back(T const& digi) {

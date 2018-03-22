@@ -5,7 +5,7 @@
 #include <stdexcept>
 
 #define USEROOT
-#define THRESHOLD 2
+#define THRESHOLD 10
 //##undef USEROOT
 
 #ifdef USEROOT
