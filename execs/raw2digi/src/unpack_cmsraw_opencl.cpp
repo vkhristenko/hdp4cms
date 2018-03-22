@@ -28,6 +28,10 @@
 
 namespace common {
 
+using kernel_maker_t = cl::compatibility::make_kernel<cl::Buffer, cl::Buffer, 
+                                                    int const, int const,
+                                                    float const, int const>;
+
 inline std::string loadProgram(std::string input) {
     std::ifstream stream(input.c_str());
     if(!stream.is_open()){
@@ -71,8 +75,66 @@ float f_sum(T& d) {
 
 void process_hcal_opencl(dataformats::raw_hcal::collections const& hcal_digis,
                          hcal::clctx_t clctx,
-                         cl::compatibility::make_kernel<cl::Buffer, cl::Buffer, int, int> mk_kernel) {
-    return;
+                         common::kernel_maker_t kkk) {
+    using namespace dataformats::raw_hcal;
+    digi_collection_f01 digis_f01;
+    digi_collection_f2 digis_f2;
+    digi_collection_f3 digis_f3;
+    digi_collection_f4 digis_f4;
+    digi_collection_f5 digis_f5;
+
+    std::tie(digis_f01, digis_f2, digis_f3, digis_f4, digis_f5) = hcal_digis;
+    PRINT(digis_f01.size());
+    PRINT(digis_f2.size());
+    PRINT(digis_f3.size());
+    PRINT(digis_f4.size());
+    PRINT(digis_f5.size());
+
+    if (digis_f01.size() == 0)
+        return;
+
+    // allocate the sums vector right awway
+    std::vector<float> test_out_f01(digis_f01.size());
+
+    // setup input/output buffers
+    cl::Buffer d_in_f01(clctx.ctx, 
+        begin(digis_f01.data()), end(digis_f01.data()), true);
+    /*
+    cl::Buffer d_in_f2(clctx.ctx, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, 
+        sizeof(uint16_t)*digis_f2.data().size(), digis_f2.data().data());
+    cl::Buffer d_in_f3(clctx.ctx, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, 
+        sizeof(uint16_t)*digis_f3.data().size(), digis_f3.data().data());
+    cl::Buffer d_in_f4(clctx.ctx, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, 
+        sizeof(uint16_t)*digis_f4.data().size(), digis_f4.data().data());
+    cl::Buffer d_in_f5(clctx.ctx, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, 
+        sizeof(uint16_t)*digis_f5.data().size(), digis_f5.data().data());
+        d_in_f2, d_in_f3, d_in_f4, d_in_f5;
+        */
+    cl::Buffer d_out_f01(clctx.ctx, CL_MEM_WRITE_ONLY, sizeof(float)*digis_f01.size());
+    /*
+    cl::Buffer d_out_f2(clctx.ctx, CL_MEM_WRITE_ONLY, sizeof(float)*digis_f2.size());
+    cl::Buffer d_out_f3(clctx.ctx, CL_MEM_WRITE_ONLY, sizeof(float)*digis_f3.size());
+    cl::Buffer d_out_f4(clctx.ctx, CL_MEM_WRITE_ONLY, sizeof(float)*digis_f4.size());
+    cl::Buffer d_out_f5(clctx.ctx, CL_MEM_WRITE_ONLY, sizeof(float)*digis_f5.size());
+    */
+
+    // launch kernel
+    // test only for the f01
+    kkk(cl::EnqueueArgs(clctx.queue, cl::NDRange(digis_f01.size())),
+        d_in_f01,
+        d_out_f01,
+        digis_f01.get_nsamples(),
+        data_f01::HEADER_WORDS,
+        data_f01::WORDS_PER_SAMPLE,
+        digis_f01.size());
+    clctx.queue.finish();
+    cl::copy(clctx.queue, d_out_f01, begin(test_out_f01), end(test_out_f01));
+
+    // run the checks
+    printf("testing opencl sum computation\n");
+    PRINT(test_out_f01.size());
+    for (auto& sum : test_out_f01) 
+        printf("sum = %f\n", sum);
 }
 
 void process_hcal(dataformats::raw_hcal::collections const& hcal_digis) {
@@ -143,11 +205,26 @@ int main(int argc, char ** argv) {
     hcal::clctx_t clctx;
     std::string progName(argv[2]);
     clctx.ctx = cl::Context(CL_DEVICE_TYPE_GPU);
-    cl::Program program(clctx.ctx, common::loadProgram(progName), true, &error);
+    cl::Program program;
+    try {
+        program = cl::Program(clctx.ctx, common::loadProgram(progName), false);
+        program.build("-cl-std=CL2.0");
+    }
+    catch (cl::Error& e) {
+        printf("err msg: %s\n", e.what());
+        if (e.err() == CL_BUILD_PROGRAM_FAILURE) {
+            printf("%d error CL build program failure\n", e.err());
+
+            auto buildInfo = program.getBuildInfo<CL_PROGRAM_BUILD_LOG>();
+            for (auto& p : buildInfo)
+                std::cout << p.second << std::endl;
+        }
+        exit(1);
+    }
+
     clctx.queue = cl::CommandQueue((clctx.ctx));
-    auto mk_vsum_simple = 
-        cl::compatibility::make_kernel<cl::Buffer, cl::Buffer, int, int>(
-            program, "vsum_simple");
+    auto mk_vsum_simple = common::kernel_maker_t(
+        program, "vsum_simple");
 
     auto nevents = tree->GetEntries();
     for (auto i=0; i<nevents && i<THRESHOLD; i++) {

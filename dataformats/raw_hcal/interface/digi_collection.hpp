@@ -43,7 +43,7 @@ public:
     }
 
     // get the raw data
-    uint16_t const* data() const { return m_data.data(); }
+    std::vector<uint16_t>& data() { return m_data; }
 
     // push an element
     void push_back(T const& digi) {
@@ -58,9 +58,8 @@ public:
             m_nsamples = digi.nsamples();
 
         // push sample words
-        for (auto is=0; is<digi.nsamples(); is++)
-            for (auto iw=0; iw<T::WORDS_PER_SAMPLE; iw++, data++)
-                m_data.push_back(*data);
+        for (auto is=0; is<digi.nsamples()*T::WORDS_PER_SAMPLE; is++, data++)
+            m_data.push_back(*data);
 
     }
 
