@@ -22,10 +22,14 @@ message(PROJECT_SOURCE_DIR = ${PROJECT_SOURCE_DIR})
 message(PROJECT_BINARY_DIR = ${PROJECT_BINARY_DIR})
 
 # add c++17 flag
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1z -Wno-c++1z-extensions")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++17 -Wno-c++17-extensions")
 
 # always follow the source tree for inclusions ( a la cmssw)
 include_directories(${PROJECT_SOURCE_DIR})
+
+# put eigen into the include path
+message (EIGEN_HOME = ${EIGEN_HOME})
+include_directories(${EIGEN_HOME})
 
 # each subdir knows what to build
 add_subdirectory(dataformats)
