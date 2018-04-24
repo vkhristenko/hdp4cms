@@ -5,6 +5,8 @@ cmake_minimum_required(VERSION 2.8.0)
 project(analytics4cmssw)
 
 # for debug purposes
+message(CMAKE_MODULE_PATH = ${CMAKE_MODULE_PATH})
+message(CMAKE_PREFIX_PATH = ${CMAKE_PREFIX_PATH})
 message(CMAKE_SOURCE_DIR = ${CMAKE_SOURCE_DIR})
 message(CMAKE_BINARY_DIR = ${CMAKE_BINARY_DIR})
 message(PROJECT_SOURCE_DIR = ${PROJECT_SOURCE_DIR})
@@ -33,7 +35,9 @@ if (APPLE)
 endif(APPLE)
 
 # find ROOT
-find_package(ROOT REQUIRED COMPONENTS RHTTP)
+find_package(ROOT REQUIRED)
+message(CMAKE_MODULE_PATH = ${CMAKE_MODULE_PATH})
+message(CMAKE_PREFIX_PATH = ${CMAKE_PREFIX_PATH})
 
 # check if ROOT is/where found
 message(ROOT_FOUND = ${ROOT_FOUND})
