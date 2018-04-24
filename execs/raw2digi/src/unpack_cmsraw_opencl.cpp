@@ -21,16 +21,20 @@
 #include "raw2digi/common/interface/fed_numbering.hpp"
 #include "raw2digi/common/interface/dump_raw.hpp"
 
+#ifdef USE_OPENCL
 #define CL_HPP_ENABLE_EXCEPTIONS
 #define CL_HPP_TARGET_OPENCL_VERSION 120
 #define CL_HPP_MINIMUM_OPENCL_VERSION 120
 #include "execs/raw2digi/interface/cl2.hpp"
+#endif // USE_OPENCL
 
 namespace common {
 
+#ifdef USE_OPENCL
 using kernel_maker_t = cl::compatibility::make_kernel<cl::Buffer, cl::Buffer, 
                                                     int const, int const,
                                                     float const, int const>;
+#endif
 
 inline std::string loadProgram(std::string input) {
     std::ifstream stream(input.c_str());
@@ -47,10 +51,12 @@ inline std::string loadProgram(std::string input) {
 
 namespace hcal {
 
+#ifdef USE_OPENCL
 struct clctx_t {
     cl::CommandQueue            queue;
     cl::Context                 ctx;
 };
+#endif
 
 template<typename T>
 float f_sum(T&);
@@ -73,6 +79,7 @@ float f_sum(T& d) {
 
 }
 
+#ifdef USE_OPENCL
 void process_hcal_opencl(dataformats::raw_hcal::collections const& hcal_digis,
                          hcal::clctx_t clctx,
                          common::kernel_maker_t kkk) {
@@ -131,6 +138,7 @@ void process_hcal_opencl(dataformats::raw_hcal::collections const& hcal_digis,
     for (auto& sum : test_out_f01) 
         printf("sum = %f\n", sum);
 }
+#endif // USE_OPENCL
 
 void process_hcal(dataformats::raw_hcal::collections const& hcal_digis) {
     using namespace dataformats::raw_hcal;
@@ -172,6 +180,8 @@ void process_hcal(dataformats::raw_hcal::collections const& hcal_digis) {
 
 int main(int argc, char ** argv) {
     std::cout << "hello world" << std::endl;
+
+#ifdef USE_OPENCL
 
     using namespace raw2digi::common;
 
@@ -263,4 +273,6 @@ int main(int argc, char ** argv) {
     }
 
     f->Close();
+
+#endif // USE_OPENCL
 }

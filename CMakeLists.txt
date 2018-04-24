@@ -4,23 +4,48 @@ cmake_minimum_required(VERSION 2.8.0)
 # project 
 project(analytics4cmssw)
 
-# find openCL and add include directories
-find_package(OpenCL REQUIRED)
-if ( OpenCL_FOUND )
-    include_directories(${OpenCL_INCLUDE_DIRS})
-    message(OpenCL_FOUND = ${OpenCL_FOUND})
-    message(OpenCL_INCLUDE_DIRS = ${OpenCL_INCLUDE_DIRS})
-    message(OpenCL_LIBRARIES = ${OpenCL_LIBRARIES})
-    message(OpenCL_VERSION_STRING = ${OpenCL_VERSION_MAJOR})
-    message(OpenCL_VERSION_MAJOR = ${OpenCL_VERSION_MAJOR})
-    message(OpenCL_VERSION_MINOR = ${OpenCL_VERSION_MINOR})
-endif()
-
 # for debug purposes
 message(CMAKE_SOURCE_DIR = ${CMAKE_SOURCE_DIR})
 message(CMAKE_BINARY_DIR = ${CMAKE_BINARY_DIR})
 message(PROJECT_SOURCE_DIR = ${PROJECT_SOURCE_DIR})
 message(PROJECT_BINARY_DIR = ${PROJECT_BINARY_DIR})
+
+# find openCL and add include directories
+if (WIN32)
+    message ("we are on win32")
+endif (WIN32)
+if (LINUX)
+    message ("we are on linux")
+endif(LINUX)
+if (APPLE)
+    message ("we are on mac")
+    find_package(OpenCL REQUIRED)
+    if ( OpenCL_FOUND )
+        include_directories(${OpenCL_INCLUDE_DIRS})
+        add_definitions(-DUSE_OPENCL)
+        message(OpenCL_FOUND = ${OpenCL_FOUND})
+        message(OpenCL_INCLUDE_DIRS = ${OpenCL_INCLUDE_DIRS})
+        message(OpenCL_LIBRARIES = ${OpenCL_LIBRARIES})
+        message(OpenCL_VERSION_STRING = ${OpenCL_VERSION_MAJOR})
+        message(OpenCL_VERSION_MAJOR = ${OpenCL_VERSION_MAJOR})
+        message(OpenCL_VERSION_MINOR = ${OpenCL_VERSION_MINOR})
+    endif()
+endif(APPLE)
+
+# find ROOT
+find_package(ROOT REQUIRED COMPONENTS RHTTP)
+
+# check if ROOT is/where found
+message(ROOT_FOUND = ${ROOT_FOUND})
+message(ROOT_INCLUDE_DIRS = ${ROOT_INCLUDE_DIRS})
+message(ROOT_LIBRARIES = ${ROOT_LIBRARIES})
+message(ROOT_DEFINITIONS = ${ROOT_DEFINITIONS})
+message(ROOT_CXX_FLAGS = ${ROOT_CXX_FLAGS})
+message(ROOT_CC_FLAGS = ${ROOT_CC_FLAGS})
+
+# add root defs / include dirs 
+add_definitions(${ROOT_CXX_FLAGS})
+include_directories("${ROOT_INCLUDE_DIRS}")
 
 # add c++17 flag
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++17 -Wno-c++17-extensions")

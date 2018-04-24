@@ -4,10 +4,12 @@
 #include <string>
 #include <cstdlib>
 
+#ifdef USE_OPENCL
 #define CL_HPP_ENABLE_EXCEPTIONS
 #define CL_HPP_TARGET_OPENCL_VERSION 120
 #define CL_HPP_MINIMUM_OPENCL_VERSION 120
 #include "cl2.hpp"
+#endif
 
 #define TOL 0.001
 #define SIZE 1024 * 1024
@@ -30,6 +32,7 @@ inline std::string loadProgram(std::string input)
 }
 
 int main(int argc, char** argv) {
+#ifdef USE_OPENCL
     int dtype = 0;
     if (argc!=3) {
         printf("usage: ./vadd /path/to/vadd.cl device_type (0: gpu, 1: cpu)\n");
@@ -98,6 +101,7 @@ int main(int argc, char** argv) {
     queue.finish();
 
     cl::copy(queue, d_c, begin(h_c), end(h_c));
+#endif // USE_OPENCL
 
 #if 0
     // testing the output
