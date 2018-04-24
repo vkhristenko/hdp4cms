@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 #include <Eigen/Dense>
 
 using namespace Eigen;
@@ -36,4 +37,8 @@ int main() {
     VectorXd v(3);
     v << 1,2,3;
     cout << "m*v = " << endl << m*v << endl;
+
+    vector<float> vd {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0};
+    Map<Matrix<float, Dynamic, Dynamic, RowMajor>> M(vd.data(), 3,3);
+    cout << "M = " << endl << M << endl;
 }
