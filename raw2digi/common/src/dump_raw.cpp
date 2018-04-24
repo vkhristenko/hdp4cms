@@ -1,3 +1,5 @@
+#include <cstdio>
+
 #include "raw2digi/common/interface/dump_raw.hpp"
 
 namespace raw2digi::common {
