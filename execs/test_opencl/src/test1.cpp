@@ -2,17 +2,20 @@
 #include <iostream>
 #include <vector>
 
+#ifdef USE_OPENCL
 // opencl c headers
-
 // opencl c++ headers
 #define CL_HPP_TARGET_OPENCL_VERSION 120
 #define CL_HPP_MINIMUM_OPENCL_VERSION 120
 #include "cl2.hpp"
+#endif
 
 const int numElements = 32;
 
 int main(int argc, char ** argv) {
     std::cout << "Hello World :)" << std::endl;
+
+#ifdef USE_OPENCL
 
     // Discover number of platforms
     std::vector<cl::Platform> platforms;
@@ -73,4 +76,6 @@ int main(int argc, char ** argv) {
             std::cout << "\t-------------------------" << std::endl;
         }
     }
+
+#endif // USE_OPENCL
 }

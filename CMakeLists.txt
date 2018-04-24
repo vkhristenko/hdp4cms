@@ -6,14 +6,15 @@ project(analytics4cmssw)
 
 # find openCL and add include directories
 find_package(OpenCL REQUIRED)
-include_directories(${OpenCL_INCLUDE_DIRS})
-
-message(OpenCL_FOUND = ${OpenCL_FOUND})
-message(OpenCL_INCLUDE_DIRS = ${OpenCL_INCLUDE_DIRS})
-message(OpenCL_LIBRARIES = ${OpenCL_LIBRARIES})
-message(OpenCL_VERSION_STRING = ${OpenCL_VERSION_MAJOR})
-message(OpenCL_VERSION_MAJOR = ${OpenCL_VERSION_MAJOR})
-message(OpenCL_VERSION_MINOR = ${OpenCL_VERSION_MINOR})
+if ( OpenCL_FOUND )
+    include_directories(${OpenCL_INCLUDE_DIRS})
+    message(OpenCL_FOUND = ${OpenCL_FOUND})
+    message(OpenCL_INCLUDE_DIRS = ${OpenCL_INCLUDE_DIRS})
+    message(OpenCL_LIBRARIES = ${OpenCL_LIBRARIES})
+    message(OpenCL_VERSION_STRING = ${OpenCL_VERSION_MAJOR})
+    message(OpenCL_VERSION_MAJOR = ${OpenCL_VERSION_MAJOR})
+    message(OpenCL_VERSION_MINOR = ${OpenCL_VERSION_MINOR})
+endif()
 
 # for debug purposes
 message(CMAKE_SOURCE_DIR = ${CMAKE_SOURCE_DIR})
