@@ -1,5 +1,5 @@
 # min version
-cmake_minimum_required(VERSION 2.8.0)
+cmake_minimum_required(VERSION 3.8.0)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
@@ -30,7 +30,9 @@ if (UNIX AND NOT APPLE)
         message(CUDA_FOUND = ${CUDA_FOUND})
         message(CUDA_LIBRARIES = ${CUDA_LIBRARIES})
         message(CUDA_INCLUDE_DIRS = ${CUDA_INCLUDE_DIRS})
+        #        set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -std=c++11" )
         include_directories(${CUDA_INCLUDE_DIRS} SYSTEM)
+        cuda_include_directories(${CUDA_INCLUDE_DIRS})
     endif(CUDA_FOUND)
 endif()
 if (APPLE)

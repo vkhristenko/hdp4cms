@@ -20,3 +20,8 @@ foreach (SOURCE ${SOURCES})
     target_link_libraries(execs_test_cuda_${EXEC} ${ROOT_LIBRARIES} ${HDP4CMS_LIBRARIES} ${OpenCL_LIBRARIES} ${CUDA_LIBRARIES})
     #    target_link_libraries(${EXEC} ${ROOT_LIBRARIES} ${HDP4CMS_LIBRARIES})
 endforeach(SOURCE)
+
+# or files with .cu extension
+file (GLOB CUSOURCES src/*.cu)
+cuda_add_library(execs__test_cuda_kernels SHARED ${CUSOURCES})
+target_link_libraries(execs__test_cuda_kernels)

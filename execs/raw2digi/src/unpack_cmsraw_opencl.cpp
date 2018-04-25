@@ -84,8 +84,17 @@ void process_hcal_opencl(dataformats::raw_hcal::collections const& hcal_digis,
                          hcal::clctx_t clctx,
                          common::kernel_maker_t kkk) {
     using namespace dataformats::raw_hcal;
-    
+
+#if __GNUC__ < 7
+    digi_collection_f01 digis_f01;
+    digi_collection_f2 digis_f2;
+    digi_collection_f3 digis_f3;
+    digi_collection_f4 digis_f4;
+    digi_collection_f5 digis_f5;
+    std::tie(digis_f01, digis_f2, digis_f3, digis_f4, digis_f5) = hcal_digis;
+#else
     auto [digis_f01, digis_f2, digis_f3, digis_f4, digis_f5] = hcal_digis;
+#endif
     PRINT(digis_f01.size());
     PRINT(digis_f2.size());
     PRINT(digis_f3.size());
@@ -142,7 +151,16 @@ void process_hcal_opencl(dataformats::raw_hcal::collections const& hcal_digis,
 
 void process_hcal(dataformats::raw_hcal::collections const& hcal_digis) {
     using namespace dataformats::raw_hcal;
+#if __GNUC__ < 7
+    digi_collection_f01 digis_f01;
+    digi_collection_f2 digis_f2;
+    digi_collection_f3 digis_f3;
+    digi_collection_f4 digis_f4;
+    digi_collection_f5 digis_f5;
+    std::tie(digis_f01, digis_f2, digis_f3, digis_f4, digis_f5) = hcal_digis;
+#else
     auto [digis_f01, digis_f2, digis_f3, digis_f4, digis_f5] = hcal_digis;
+#endif
 
     PRINT(digis_f01.size());
     PRINT(digis_f2.size());
