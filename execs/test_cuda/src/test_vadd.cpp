@@ -37,8 +37,9 @@ int main() {
 
     cudaMemcpy(c, d_c, n*sizeof(int), cudaMemcpyDeviceToHost);
 
-    for (auto i=0; i<n && i%100==0; i++)
-        std::cout << "c[" << i << "] = " << c[i] << std::endl;
+    for (auto i=0; i<n; i++) 
+        if (i%100 == 0)
+            std::cout << "c[" << i << "] = " << c[i] << std::endl;
 
     cudaFree( d_a );
     cudaFree( d_a );

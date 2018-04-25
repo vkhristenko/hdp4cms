@@ -1,7 +1,7 @@
 # min version
 cmake_minimum_required(VERSION 3.8.0)
 
-set(CMAKE_VERBOSE_MAKEFILE ON)
+set(CMAKE_VERBOSE_MAKEFILE OFF)
 
 # project 
 project(analytics4cmssw)
