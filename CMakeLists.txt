@@ -1,6 +1,8 @@
 # min version
 cmake_minimum_required(VERSION 2.8.0)
 
+set(CMAKE_VERBOSE_MAKEFILE ON)
+
 # project 
 project(analytics4cmssw)
 
@@ -12,11 +14,13 @@ message(CMAKE_BINARY_DIR = ${CMAKE_BINARY_DIR})
 message(PROJECT_SOURCE_DIR = ${PROJECT_SOURCE_DIR})
 message(PROJECT_BINARY_DIR = ${PROJECT_BINARY_DIR})
 
+message("-------------------------------------------")
+
 # find stuff based on the os
 if (WIN32)
     message ("we are on win32")
 endif (WIN32)
-if (LINUX)
+if (UNIX AND NOT APPLE)
     message ("we are on linux")
 
     # cuda
@@ -28,7 +32,7 @@ if (LINUX)
         message(CUDA_INCLUDE_DIRS = ${CUDA_INCLUDE_DIRS})
         include_directories(${CUDA_INCLUDE_DIRS})
     endif(CUDA_FOUND)
-endif(LINUX)
+endif()
 if (APPLE)
     message ("we are on mac")
 
@@ -59,6 +63,8 @@ if (APPLE)
     endif(CUDA_FOUND)
 endif(APPLE)
 
+message("-------------------------------------------")
+
 # find ROOT
 find_package(ROOT REQUIRED)
 message(CMAKE_MODULE_PATH = ${CMAKE_MODULE_PATH})
@@ -78,6 +84,8 @@ include_directories("${ROOT_INCLUDE_DIRS}")
 
 # add c++17 flag
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++17 -Wno-c++17-extensions")
+
+message("-------------------------------------------")
 
 # always follow the source tree for inclusions ( a la cmssw)
 include_directories(${PROJECT_SOURCE_DIR})

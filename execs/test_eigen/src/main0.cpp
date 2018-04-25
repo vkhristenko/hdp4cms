@@ -1,5 +1,10 @@
 #include <iostream>
+
+#if defined __APPLE__
 #include <Eigen/Dense>
+#else 
+#include <Eigen/Dense>
+#endif
 
 int main() {
     std::cout << "hello world" << std::endl;
