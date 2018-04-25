@@ -30,7 +30,7 @@ if (UNIX AND NOT APPLE)
         message(CUDA_FOUND = ${CUDA_FOUND})
         message(CUDA_LIBRARIES = ${CUDA_LIBRARIES})
         message(CUDA_INCLUDE_DIRS = ${CUDA_INCLUDE_DIRS})
-        include_directories(${CUDA_INCLUDE_DIRS})
+        include_directories(${CUDA_INCLUDE_DIRS} SYSTEM)
     endif(CUDA_FOUND)
 endif()
 if (APPLE)
@@ -92,7 +92,7 @@ include_directories(${PROJECT_SOURCE_DIR})
 
 # put eigen into the include path
 message (EIGEN_HOME = ${EIGEN_HOME})
-include_directories(${EIGEN_HOME})
+include_directories(${EIGEN_HOME} SYSTEM)
 
 # each subdir knows what to build
 add_subdirectory(dataformats)
