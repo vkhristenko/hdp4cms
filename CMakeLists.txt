@@ -12,26 +12,51 @@ message(CMAKE_BINARY_DIR = ${CMAKE_BINARY_DIR})
 message(PROJECT_SOURCE_DIR = ${PROJECT_SOURCE_DIR})
 message(PROJECT_BINARY_DIR = ${PROJECT_BINARY_DIR})
 
-# find openCL and add include directories
+# find stuff based on the os
 if (WIN32)
     message ("we are on win32")
 endif (WIN32)
 if (LINUX)
     message ("we are on linux")
+
+    # cuda
+    find_package(CUDA)
+    if ( CUDA_FOUND )
+        add_definitions(-DUSE_CUDA)
+        message(CUDA_FOUND = ${CUDA_FOUND})
+        message(CUDA_LIBRARIES = ${CUDA_LIBRARIES})
+        message(CUDA_INCLUDE_DIRS = ${CUDA_INCLUDE_DIRS})
+        include_directories(${CUDA_INCLUDE_DIRS})
+    endif(CUDA_FOUND)
 endif(LINUX)
 if (APPLE)
     message ("we are on mac")
-    find_package(OpenCL REQUIRED)
+
+    # opencl
+    find_package(OpenCL)
     if ( OpenCL_FOUND )
         include_directories(${OpenCL_INCLUDE_DIRS})
-        add_definitions(-DUSE_OPENCL)
         message(OpenCL_FOUND = ${OpenCL_FOUND})
         message(OpenCL_INCLUDE_DIRS = ${OpenCL_INCLUDE_DIRS})
         message(OpenCL_LIBRARIES = ${OpenCL_LIBRARIES})
         message(OpenCL_VERSION_STRING = ${OpenCL_VERSION_MAJOR})
         message(OpenCL_VERSION_MAJOR = ${OpenCL_VERSION_MAJOR})
         message(OpenCL_VERSION_MINOR = ${OpenCL_VERSION_MINOR})
-    endif()
+
+        # to turn flags on to use opencl stuff
+        add_definitions(-DUSE_OPENCL)
+    endif(OpenCL_FOUND)
+
+    # cuda
+    find_package(CUDA)
+    if ( CUDA_FOUND )
+        add_definitions(-DUSE_CUDA)
+        message(CUDA_FOUND = ${CUDA_FOUND})
+        message(CUDA_LIBRARIES = ${CUDA_LIBRARIES})
+        message(CUDA_INCLUDE_DIRS = ${CUDA_INCLUDE_DIRS})
+        include_directories(${CUDA_INCLUDE_DIRS})
+
+    endif(CUDA_FOUND)
 endif(APPLE)
 
 # find ROOT

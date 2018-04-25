@@ -1,4 +1,4 @@
-message("compiling execs/test_eigen")
+message("compiling execs/test_cuda")
 
 # set a list of internal libraries to link against
 # TODO: we should be able to detect this automatically
@@ -15,8 +15,8 @@ foreach (SOURCE ${SOURCES})
     string(REPLACE ".cpp" "" EXEC ${SOURCE})
     get_filename_component(EXEC ${EXEC} NAME)
     message("adding executable ${EXEC}")
-    add_executable(execs_test_eigen_${EXEC} ${SOURCE})
+    add_executable(execs_test_cuda_${EXEC} ${SOURCE})
     message("hdp4cms libraries: ${HDP4CMS_LIBRARIES}")
-    target_link_libraries(execs_test_eigen_${EXEC} ${ROOT_LIBRARIES} ${HDP4CMS_LIBRARIES} ${OpenCL_LIBRARIES})
+    target_link_libraries(execs_test_cuda_${EXEC} ${ROOT_LIBRARIES} ${HDP4CMS_LIBRARIES} ${OpenCL_LIBRARIES} ${CUDA_LIBRARIES})
     #    target_link_libraries(${EXEC} ${ROOT_LIBRARIES} ${HDP4CMS_LIBRARIES})
 endforeach(SOURCE)
