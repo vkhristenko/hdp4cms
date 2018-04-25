@@ -1,4 +1,5 @@
 #include "execs/test_cuda/interface/test_kernels0.h"
+#include <Eigen/Dense>
 
 //
 // simple vector addition example
