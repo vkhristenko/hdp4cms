@@ -17,6 +17,9 @@ int main() {
     int constexpr n = 100;
     Eigen::Vector3d a[n], b[n], c[n];
     Eigen::Vector3d *d_a, *d_b, *d_c;
+    Eigen::Vector3d::value_type dot_out[n];
+    Eigen::Vector3d::value_type* d_dot_out;
+
 
     for (auto i=0; i<n; i++) {
         a[i] << i, i, i;
@@ -27,6 +30,7 @@ int main() {
     cudaMalloc((void**)&d_a, n * sizeof(Eigen::Vector3d) );
     cudaMalloc((void**)&d_b, n*sizeof(Eigen::Vector3d));
     cudaMalloc((void**)&d_c, n*sizeof(Eigen::Vector3d));
+    cudaMalloc((void**)&d_dot_out, n*sizeof(Eigen::Vector3d::value_type));
 
     // transfer to the device
     cudaMemcpy(d_a, a, n*sizeof(Eigen::Vector3d), cudaMemcpyHostToDevice);
@@ -34,17 +38,25 @@ int main() {
     
     // run the kernel
     eigen_vector_add(d_a, d_b, d_c, n);
+    eigen_vector_dot(d_a, d_b, d_dot_out, n);
 
     cudaMemcpy(c, d_c, n*sizeof(Eigen::Vector3d), cudaMemcpyDeviceToHost);
+    cudaMemcpy(dot_out, d_dot_out, n*sizeof(Eigen::Vector3d::value_type),
+        cudaMemcpyDeviceToHost);
 
     for (auto i=0; i<n; i++) 
-        if (i%10 == 0)
+        if (i%10 == 0) {
             std::cout << "c[" << i << "]" << std::endl
                 << c[i] << std::endl;
 
+            std::cout << "-------------" << std::endl;
+            std::cout << "dot_out[" << i << "] = " << dot_out[i] << std::endl;
+        }
+
     cudaFree( d_a );
-    cudaFree( d_a );
-    cudaFree( d_a );
+    cudaFree( d_b );
+    cudaFree( d_c );
+    cudaFree(d_dot_out);
 
 #endif // USE_CUDA
 }
