@@ -1,7 +1,8 @@
 #ifndef execs_test_cuda_eigen_interface_test_eigen_kernels0_h
 #define execs_test_cuda_eigen_interface_test_eigen_kernels0_h
 
-#include<Eigen/Core>
+#include <Eigen/Dense>
+#include <Eigen/Cholesky>
 
 int constexpr nrows = 10;
 int constexpr ncols = 10;

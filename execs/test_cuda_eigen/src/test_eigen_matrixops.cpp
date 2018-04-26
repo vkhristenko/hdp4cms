@@ -46,7 +46,16 @@ int main() {
     
     // run the kernel
     eigen_matrix_add(d_a, d_b, d_c, n);
+
+    // want to see errors from this kernel
     eigen_matrix_tests(d_a, d_d, n);
+
+    cudaDeviceSynchronize();
+    cudaError err = cudaGetLastError();
+    if (err != cudaSuccess) {
+        std::cout << "cuda error!" << std::endl
+            << cudaGetErrorString(err) << std::endl;
+    }
 
     cudaMemcpy(c, d_c, n*sizeof(Matrix10x10), cudaMemcpyDeviceToHost);
     cudaMemcpy(d, d_d, n*sizeof(Matrix10x10), cudaMemcpyDeviceToHost);
