@@ -39,6 +39,7 @@ int main() {
     std::cout << "hello world" << std::endl;
 
     std::generate(input.begin(), input.end(), unifRand);
+    
     try {
         printf("trying cpu backend\n");
         af::setBackend(AF_BACKEND_CPU);
