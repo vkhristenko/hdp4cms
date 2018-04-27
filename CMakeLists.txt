@@ -103,6 +103,25 @@ endif(APPLE)
 
 message("-------------------------------------------")
 
+find_package(ArrayFire)
+if (ArrayFire_FOUND)
+    message("ArrayFire is found!")
+    message(ArrayFire_CPU_FOUND = ${ArrayFire_CPU_FOUND})
+    message(ArrayFire_CPU_LIBRARIES = ${ArrayFire_CPU_LIBRARIES})
+    message(ArrayFire_CUDA_FOUND = ${ArrayFire_CUDA_FOUND})
+    message(ArrayFire_CUDA_LIBRARIES = ${ArrayFire_CUDA_LIBRARIES})
+    message(ArrayFire_OpenCL_FOUND = ${ArrayFire_OpenCL_FOUND})
+    message(ArrayFire_OpenCL_LIBRARIES = ${ArrayFire_OpenCL_LIBRARIES})
+    message(ArrayFire_Unified_FOUND = ${ArrayFire_Unified_FOUND})
+    message(ArrayFire_Unified_LIBRARIES = ${ArrayFire_Unified_LIBRARIES})
+
+    INCLUDE_DIRECTORIES(${ArrayFire_INCLUDE_DIRS})
+else()
+    message("ArrayFire is not found!")
+endif()
+
+message("-------------------------------------------")
+
 # find ROOT
 find_package(ROOT REQUIRED)
 message(CMAKE_MODULE_PATH = ${CMAKE_MODULE_PATH})
