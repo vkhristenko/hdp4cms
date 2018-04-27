@@ -26,6 +26,21 @@ if (WIN32)
 endif (WIN32)
 if (UNIX AND NOT APPLE)
     message ("we are on linux")
+    
+    # opencl
+    find_package(OpenCL)
+    if ( OpenCL_FOUND )
+        include_directories(${OpenCL_INCLUDE_DIRS})
+        message(OpenCL_FOUND = ${OpenCL_FOUND})
+        message(OpenCL_INCLUDE_DIRS = ${OpenCL_INCLUDE_DIRS})
+        message(OpenCL_LIBRARIES = ${OpenCL_LIBRARIES})
+        message(OpenCL_VERSION_STRING = ${OpenCL_VERSION_MAJOR})
+        message(OpenCL_VERSION_MAJOR = ${OpenCL_VERSION_MAJOR})
+        message(OpenCL_VERSION_MINOR = ${OpenCL_VERSION_MINOR})
+
+        # to turn flags on to use opencl stuff
+        add_definitions(-DUSE_OPENCL)
+    endif(OpenCL_FOUND)
 
     # cuda
     if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
