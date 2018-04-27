@@ -37,6 +37,7 @@ if (UNIX AND NOT APPLE)
         message(OpenCL_VERSION_STRING = ${OpenCL_VERSION_MAJOR})
         message(OpenCL_VERSION_MAJOR = ${OpenCL_VERSION_MAJOR})
         message(OpenCL_VERSION_MINOR = ${OpenCL_VERSION_MINOR})
+        set (LINK_LIBRARIES ${OpenCL_LIBRARIES} ${LINK_LIBRARIES})
 
         # to turn flags on to use opencl stuff
         add_definitions(-DUSE_OPENCL)
@@ -89,6 +90,7 @@ if (APPLE)
         message(OpenCL_VERSION_STRING = ${OpenCL_VERSION_MAJOR})
         message(OpenCL_VERSION_MAJOR = ${OpenCL_VERSION_MAJOR})
         message(OpenCL_VERSION_MINOR = ${OpenCL_VERSION_MINOR})
+        set (LINK_LIBRARIES ${OpenCL_LIBRARIES} ${LINK_LIBRARIES})
 
         # to turn flags on to use opencl stuff
         add_definitions(-DUSE_OPENCL)
