@@ -10,6 +10,7 @@ using namespace dataformats::raw_fed;
 using namespace dataformats::raw_fed;
 
 void unpack(raw_buffer const& buffer, int fed) {
+    /*
     PRINT(buffer.size());
 
     // get the data
@@ -48,6 +49,7 @@ void unpack(raw_buffer const& buffer, int fed) {
     printf("    FED=%d Dumping the whole RAW Buffer size = %lu Bytes\n", fed, buffer.size());
     printf("***********************************\n\n");
     raw2digi::common::dump_raw(buffer, 8);
+    */
 }
 
 }
